@@ -1,5 +1,5 @@
 USTH Deep Learning 2025
 ==========================
 
-* Your name here
-* YOUR ID HERE IF YOU ARE DAT
+Luong Thi Ngoc Diep  
+Student ID: 2440056
