@@ -1,0 +1,179 @@
+\documentclass[hidelinks]{report}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsmath}
+\usepackage{siunitx}
+\usepackage{placeins}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor,graphicx}
+\setcounter{secnumdepth}{0}
+\usepackage{titlesec}
+\usepackage[top=1.4in,bottom=1.4in,right=1.25in,left=1.25in]{geometry}
+\usepackage{rotating}
+\usepackage{subcaption}
+\usepackage{lipsum}
+\usepackage{fancyhdr}
+\usepackage{listing}
+
+\definecolor{blue}{RGB}{31,56,100}
+
+\begin{document}
+\begin{titlepage}
+\begin{center}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\linewidth]{image/usth.png}
+\end{figure}
+
+{\huge \bfseries \uppercase{Labwork 2 } \\[3cm] }
+
+\rule{\linewidth}{0.3mm} \\[0.4cm]
+{ \huge \bfseries\color{blue} Linear Regression}
+\rule{\linewidth}{0.3mm} \\[0.5cm]
+\Large{Student:} 2440056 - Luong Thi Ngoc Diep\\[0.3cm]
+\large Academic Year: 2024-2026
+    
+\end{center}
+\end{titlepage}
+
+\clearpage
+\pagestyle{plain} 
+\setcounter{page}{1}
+
+\section{Introduction}
+In this report, we discuss the implementation of Linear Regression using the Gradient Descent algorithm. We apply the algorithm to a dataset and analyze the effect of different learning rates on convergence.
+
+\section{Algorithm Implementation}
+The linear regression model we aim to implement is:
+\[
+y = w_1 x + w_0
+\]
+The loss function we are minimizing is the Mean Squared Error (MSE), given by:
+\[
+L(w_0, w_1) = \frac{1}{2N} \sum_{i=1}^{N} (w_1 x_i + w_0 - y_i)^2
+\]
+The gradient descent updates for \(w_0\) and \(w_1\) are given by:
+\[
+w_0 = w_0 - r \frac{\partial L}{\partial w_0}
+\]
+\[
+w_1 = w_1 - r \frac{\partial L}{\partial w_1}
+\]
+where \(r\) is the learning rate, and the partial derivatives are:
+\[
+\frac{\partial L}{\partial w_0} = \frac{1}{N} \sum_{i=1}^{N} (w_1 x_i + w_0 - y_i)
+\]
+\[
+\frac{\partial L}{\partial w_1} = \frac{1}{N} \sum_{i=1}^{N} x_i (w_1 x_i + w_0 - y_i)
+\]
+The following Python code implements the Gradient Descent algorithm:
+
+\begin{verbatim}
+x_data = []
+y_data = []
+
+with open(file_path, mode='r') as file:
+    csvreader = csv.reader(file)
+    for row in csvreader:
+        x_data.append(float(row[0]))  
+        y_data.append(float(row[1])) 
+
+w0 = 0  
+w1 = 1
+r = 0.0001 
+epsilon = 1e-6  # convergence threshold
+
+# Loss function
+def calculate_loss(w0, w1, x_data, y_data):
+    N = len(x_data)
+    total_loss = 0
+    for i in range(N):
+        y_pred = w1 * x_data[i] + w0
+        loss = 0.5 * (y_pred - y_data[i]) ** 2  # Loss for one data point
+        total_loss += loss
+    return total_loss / N  # Average loss for all data points
+
+def calculate_gradients(w0, w1, x_data, y_data):
+    grad_w0 = 0
+    grad_w1 = 0
+    N = len(x_data)
+    for i in range(N):
+        y_pred = w1 * x_data[i] + w0
+        grad_w0 += (y_pred - y_data[i])
+        grad_w1 += x_data[i] * (y_pred - y_data[i])
+    grad_w0 /= N
+    grad_w1 /= N
+    return grad_w0, grad_w1
+
+losses = []
+w0_list = []
+w1_list = []
+
+steps = 0
+while True:
+    loss = calculate_loss(w0, w1, x_data, y_data)
+    losses.append(loss)
+    w0_list.append(w0)
+    w1_list.append(w1)
+
+    print(f"Step {steps}: w0 = {w0:.4f}, w1 = {w1:.4f}, Loss = {loss:.4f}")
+
+    grad_w0, grad_w1 = calculate_gradients(w0, w1, x_data, y_data)
+    w0_new = w0 - r * grad_w0
+    w1_new = w1 - r * grad_w1
+
+    if abs(w0_new - w0) < epsilon and abs(w1_new - w1) < epsilon:
+        break
+
+    w0 = w0_new
+    w1 = w1_new
+    steps += 1
+
+print(f"Final result: w0 = {w0:.4f}, w1 = {w1:.4f}, after {steps} steps")
+\end{verbatim}
+
+\section{Results}
+The initial values for the weights were set to:
+\[
+w_0 = 0, \quad w_1 = 1
+\]
+The learning rate was set to \(r = 0.0001\), and the threshold for convergence was set to \(10^{-6}\). The algorithm converged after 264,582 steps with the final values for the weights:
+\[
+w_0 = 47.9509, \quad w_1 = 1.2628
+\]
+The loss function steadily decreased throughout the iterations, reaching a final value close to zero.
+\subsection{Visualization}
+Loss Over Iterations
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{image/loss_plot.png}
+    \caption{Loss value decreases over each iteration step in Gradient Descent. .}
+    \label{fig:loss-plot}
+\end{figure}
+
+\section{Linear Regression Fit}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{image/regression_plot.png}
+    \caption{Data points and the fitted regression line using Gradient Descent. The red line represents the best-fit linear model.}
+    \label{fig:regression-plot}
+\end{figure}
+
+\section{Effect of Learning Rate on Convergence}
+The learning rate \(r\) is a critical parameter that affects the convergence of the Gradient Descent algorithm. If the learning rate is too small, the algorithm may take a very long time to converge, requiring more steps. On the other hand, if the learning rate is too large, the algorithm may overshoot the minimum, causing the weights to oscillate or even diverge.
+
+We experimented with different learning rates, and the results were as follows:
+
+\begin{itemize}
+    \item For \(r = 0.0001\), the algorithm converged after 264,582 steps.
+    \item For \(r = 0.001\), the algorithm converged after approximately 20,000 steps, but the convergence was less smooth, with slight oscillations.
+    \item For \(r = 0.01\), the algorithm diverged after a few hundred steps, indicating that the learning rate was too high.
+\end{itemize}
+
+\section{Conclusion}
+In this report, we implemented Linear Regression using Gradient Descent and demonstrated how the learning rate affects convergence. The results show that finding an appropriate learning rate is crucial for the efficient and stable convergence of the algorithm. A smaller learning rate results in slower convergence, while a larger learning rate may cause divergence.
+
+\end{document}

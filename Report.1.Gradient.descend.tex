@@ -1,0 +1,188 @@
+\documentclass[hidelinks]{report}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsmath}
+\usepackage{siunitx}
+\usepackage{placeins}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor,graphicx}
+\setcounter{secnumdepth}{0}
+\usepackage{titlesec}
+\usepackage[top=1.4in,bottom=1.4in,right=1.25in,left=1.25in]{geometry}
+\usepackage{rotating}
+\usepackage{subcaption}
+\usepackage{lipsum}
+\usepackage{fancyhdr}
+\usepackage{listing}
+
+\definecolor{blue}{RGB}{31,56,100}
+
+\usepackage{lipsum}% http://ctan.org/pkg/lipsum
+\makeatletter
+\def\@makechapterhead#1{%
+  {
+  \parindent \z@ \raggedright \normalfont
+    
+    \ifnum \c@secnumdepth >\m@ne
+        \huge\bfseries \thechapter.\
+    \fi
+    \interlinepenalty\@M
+    #1\par\nobreak%
+    \vskip 40\p@% 
+  }}
+\makeatother
+
+\renewcommand{\thesection}{\arabic{chapter}.\arabic{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+
+\newcounter{subsecindex}[section]
+\renewcommand{\thesubsecindex}{\thesubsection%
+  \ifnum\value{subsecindex}>0
+    .\arabic{subsecindex}%
+  \fi
+}
+
+% Redefine the \section command to include the index
+\let\oldsection\section
+\renewcommand{\section}[1]{%
+  \setcounter{subsecindex}{0} % Reset subsection counter for each section
+  \refstepcounter{section}%
+  \oldsection{\thesection\hspace{0.5em}#1}%
+}
+
+% Redefine the \subsection command to include the index
+\let\oldsubsection\subsection
+\renewcommand{\subsection}[1]{%
+  \refstepcounter{subsection}%
+  \oldsubsection{\thesubsecindex\hspace{0.5em}#1}%
+}
+
+
+\begin{document}
+\begin{titlepage}
+\begin{center}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\linewidth]{image/usth.png}
+\end{figure}
+
+\textsc{\Large }\\[1.5cm]
+
+{\huge \bfseries \uppercase{Labwork 1} \\[3cm] }
+
+% Title
+\rule{\linewidth}{0.3mm} \\[0.4cm]
+{ \huge \bfseries\color{blue} Gradient descend}
+\rule{\linewidth}{0.3mm} \\[0.5cm]
+\Large{Student:} 2440056 - Luong Thi Ngoc Diep\\[0.3cm]
+\large Academic Year: 2024-2026
+    
+\end{center}
+\end{titlepage}
+
+\clearpage
+\pagestyle{plain} 
+\setcounter{page}{1}
+
+\chapter{How I Implemented the Algorithm}
+
+In this lab, I implemented Gradient Descent from scratch in Python without using any external libraries.
+
+We aim to minimize the function:
+\[
+f(x) = x^2, \quad \text{with derivative} \quad f'(x) = 2x
+\]
+
+We start with an initial value of \( x \) and iteratively apply the update rule:
+\[
+x_{t+1} = x_t - r \cdot f'(x_t)
+\]
+Where:
+\begin{itemize}
+  \item \( r \) is the learning rate
+  \item \( f'(x_t) = 2x_t \) is the gradient at current \( x \)
+\end{itemize}
+
+\begin{verbatim}
+def gradient_descent(x, lr):
+    threshold = 1
+    loss = []
+    xs = []
+    count = 0  
+    print("Iter\t\tx\t\tf(x)")
+    print("-" * 50)
+
+    while x > threshold:
+        f = x**2
+        print(f"{count}\t\t{x:.6f}\t\t{f:.6f}")
+        loss.append(f)
+        xs.append(x)
+
+        f_prime = 2 * x
+        x = x - lr * f_prime  
+        count += 1
+
+    return loss
+
+loss = gradient_descent(10, 0.1)
+
+\end{verbatim}
+
+\chapter{Intermediate Results for $r = 0.1$}
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+Iteration & $x$ & $f(x)$ \\
+\hline
+0 & 10.0000 & 100.0000 \\
+1 & 8.0000 & 64.0000 \\
+2 & 6.4000 & 40.9600 \\
+3 & 5.1200 & 26.2144 \\
+4 & 4.0960 & 16.7772 \\
+5 & 3.2768 & 10.7374 \\
+6 & 2.6214 & 6.8719 \\
+7 & 2.0972 & 4.4020 \\
+8 & 1.6777 & 2.8133 \\
+9 & 1.3422 & 1.8005 \\
+\hline
+\end{tabular}
+\end{center}
+
+Graphical Visualization
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{image/loss_curve.png}
+    \caption{Loss value $f(x)$ over iterations with $r = 0.1$}
+\end{figure}
+
+We tested multiple values of learning rate \( r \) and observed:
+
+\begin{itemize}
+    \item \textbf{Small \( r = 0.01 \):}  
+    Converges slowly. Requires many iterations to reach a minimum.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{001.png}
+    \label{fig:enter-label}
+\end{figure}
+    \item \textbf{Optimal \( r = 0.1 \):}  
+    Good balance of speed and stability. Smooth convergence to the minimum.
+
+    \item \textbf{Large \( r = 0.5 \):}  
+    Faster convergence initially, but may overshoot and oscillate around the minimum.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{image/05.png}
+\end{figure}
+    \item \textbf{Too Large \( r = 1.0 \):}  
+    Causes divergence or continuous bouncing around the minimum. The value of \( x \) may alternate and never settle.
+    
+\end{itemize}
+In this lab, we implemented gradient descent to minimize \( f(x) = x^2 \). We found that a moderate learning rate (e.g., 0.1) offers a good trade-off between speed and stability.
+\end{document}
+
